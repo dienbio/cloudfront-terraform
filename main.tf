@@ -228,96 +228,88 @@ module "logging_cloudfront_elb" {
 }
 
 module "cloudfront_elb" {
-  source = "./modules/cf/"
+  source                         = "./modules/cf/"
 
-  aliases = ["appsync.antientf.tk"]
- 
-  comment             = "My awesome CloudFront"
-  enabled             = true
-  is_ipv6_enabled     = true
-  price_class         = "PriceClass_All"
-  retain_on_delete    = false
-  wait_for_deployment = false
+  aliases                       = ["appsync.antientf.tk"]
+  comment                       = var.cloudfront_elb_comment
+  enabled                       = var.cloudfront_elb_enabled
+  is_ipv6_enabled               = var.cloudfront_elb_is_ipv6_enabled
+  price_class                   = var.cloudfront_elb_price_class
+  retain_on_delete              = var.cloudfront_elb_retain_on_delete
+  wait_for_deployment           = var.cloudfront_elb_wait_for_deployment
 
-  create_origin_access_identity = false
+  create_origin_access_identity = var.cloudfront_elb_create_origin_access_identity
 
   logging_config = {
     bucket = module.logging_cloudfront_elb.this_s3_bucket_bucket_domain_name
-    prefix = "logging_cloudfront_elb"
+    prefix = var.cloudfront_elb_prefix_logging_config
   }
 
   origin = {
     appsync = {
-      domain_name =  module.alb.this_lb_dns_name
-      origin_id   = trimsuffix(module.alb.this_lb_dns_name, ".us-east-1.elb.amazonaws.com")
-      custom_origin_config = {
-        http_port              = 80
-        https_port             = 443
-        origin_protocol_policy = "match-viewer"
-        origin_ssl_protocols   = ["SSLv3"]
-      }
+      domain_name              =  module.alb.this_lb_dns_name
+      origin_id                = trimsuffix(module.alb.this_lb_dns_name, ".us-east-1.elb.amazonaws.com")
+      custom_origin_config     = var.cloudfront_elb_custom_origin_config
     }
   }
 
   default_cache_behavior = {
-    target_origin_id       = trimsuffix(module.alb.this_lb_dns_name, ".us-east-1.elb.amazonaws.com")
-    viewer_protocol_policy = "allow-all"
-    
-    allowed_methods = ["GET", "HEAD", "OPTIONS"]
-    cached_methods  = ["GET", "HEAD"]
-    compress        = true
-    query_string    = true
+    target_origin_id           = trimsuffix(module.alb.this_lb_dns_name, ".us-east-1.elb.amazonaws.com")
+    viewer_protocol_policy     = var.cloudfront_elb_default_cache_behavior_viewer_protocol_policy
+    allowed_methods            = var.cloudfront_elb_default_cache_behavior_allowed_methods
+    cached_methods             = var.cloudfront_elb_default_cache_behavior_cached_methods
+    compress                   = var.cloudfront_elb_default_cache_behavior_compress
+    query_string               = var.cloudfront_elb_default_cache_behavior_query_string
   }
 
   ordered_cache_behavior = [
     {
-      path_pattern           = "/content/*"
-      target_origin_id       = trimsuffix(module.alb.this_lb_dns_name, ".us-east-1.elb.amazonaws.com")
-      viewer_protocol_policy = "redirect-to-https"
-
-      allowed_methods = ["GET", "HEAD", "OPTIONS", "PUT","POST", "PATCH", "DELETE"]
-      cached_methods  = ["GET", "HEAD"]
-      compress        = true
-      query_string    = true
+      path_pattern            = "/content/*"
+      target_origin_id        = trimsuffix(module.alb.this_lb_dns_name, ".us-east-1.elb.amazonaws.com")
+      viewer_protocol_policy  = var.cloudfront_elb_default_cache_behavior_viewer_protocol_policy
+      allowed_methods         = var.cloudfront_elb_default_cache_behavior_allowed_methods
+      cached_methods          = var.cloudfront_elb_default_cache_behavior_cached_methods
+      compress                = var.cloudfront_elb_default_cache_behavior_compress
+      query_string            = var.cloudfront_elb_default_cache_behavior_query_string
     }
   ]
 
   viewer_certificate = {
-    acm_certificate_arn = data.aws_acm_certificate.demo_cert.arn
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn       = data.aws_acm_certificate.demo_cert.arn
+    ssl_support_method        = var.cloudfront_elb_ssl_support_method
   }
 }
 
 module "logging_cloudfront_s3" {
-  source        = "./modules/s3"
+  source                      = "./modules/s3"
 
-  bucket        = var.logging_cloudfront_s3_bucket
-  force_destroy = var.logging_cloudfront_s3_force_destroy
+  bucket                      = var.logging_cloudfront_s3_bucket
+  force_destroy               = var.logging_cloudfront_s3_force_destroy
 }
 
 
-module "cloudfront-s3" {
+module "cloudfront_s3" {
   source = "./modules/cf/"
 
   # aliases = ["${local.subdomain}.${local.domain_name}"]
   aliases = ["cdn.antientf.tk"]
 
+  comment                       = var.cloudfront_s3_comment
+  enabled                       = var.cloudfront_s3_enabled
+  is_ipv6_enabled               = var.cloudfront_s3_is_ipv6_enabled
+  price_class                   = var.cloudfront_s3_price_class
+  retain_on_delete              = var.cloudfront_s3_retain_on_delete
+  wait_for_deployment           = var.cloudfront_s3_wait_for_deployment
 
-  comment             = "My awesome CloudFront"
-  enabled             = true
-  is_ipv6_enabled     = true
-  price_class         = "PriceClass_All"
-  retain_on_delete    = false
-  wait_for_deployment = false
 
-  create_origin_access_identity = true
+  create_origin_access_identity = var.cloudfront_elb_create_origin_access_identity
   origin_access_identities = {
     s3_bucket_one = "My awesome CloudFront can access"
   }
 
   logging_config = {
-    bucket = module.logging_cloudfront_s3.this_s3_bucket_bucket_domain_name
-    prefix = "logging_cloudfront-s3"
+    bucket                      = module.logging_cloudfront_s3.this_s3_bucket_bucket_domain_name
+    prefix                      = var.cloudfront_s3_prefix_logging_config
   }
 
   origin = {
@@ -333,24 +325,22 @@ module "cloudfront-s3" {
 
   default_cache_behavior = {
     target_origin_id       = trimsuffix(data.aws_s3_bucket.bucket_test_cloudfront.bucket_domain_name, ".s3.amazonaws.com")
-    viewer_protocol_policy = "allow-all"
-
-    allowed_methods = ["GET", "HEAD", "OPTIONS"]
-    cached_methods  = ["GET", "HEAD"]
-    compress        = true
-    query_string    = true
+    viewer_protocol_policy = var.cloudfront_s3_default_cache_behavior_viewer_protocol_policy
+    allowed_methods        = var.cloudfront_s3_default_cache_behavior_allowed_methods
+    cached_methods         = var.cloudfront_s3_default_cache_behavior_cached_methods
+    compress               = var.cloudfront_s3_default_cache_behavior_compress
+    query_string           = var.cloudfront_s3_default_cache_behavior_query_string
   }
 
   viewer_certificate = {
-    acm_certificate_arn = data.aws_acm_certificate.demo_cert.arn
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn    = data.aws_acm_certificate.demo_cert.arn
+    ssl_support_method     = var.cloudfront_s3_ssl_support_method
   }
 }
 
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
   comment = "access-identity-${var.bucket_name}"
 }
-
 
 resource "aws_s3_bucket" "bucket" {
   bucket = "${var.bucket_name}"

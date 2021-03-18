@@ -573,3 +573,234 @@ variable "logging_cloudfront_s3_force_destroy" {
 ########### CLOUDFRONT FOR ELASTIC LOAD BALANCER       ###########  
 ##################################################################
 
+variable "cloudfront_elb_comment" {
+  description = "Any comments you want to include about the distribution."
+  type        = string
+  default     = "My awesome CloudFront made by TF"
+}
+
+variable "cloudfront_elb_enabled" {
+  description = "Whether the distribution is enabled to accept end user requests for content."
+  type        = bool
+  default     = true
+}
+
+
+variable "cloudfront_elb_is_ipv6_enabled" {
+  description = "Whether the IPv6 is enabled for the distribution."
+  type        = bool
+  default     = true
+}
+
+variable "cloudfront_elb_price_class" {
+  description = "The price class for this distribution. One of PriceClass_All, PriceClass_200, PriceClass_100"
+  type        = string
+  default     = "PriceClass_All"
+}
+
+
+variable "cloudfront_elb_retain_on_delete" {
+  description = "Disables the distribution instead of deleting it when destroying the resource through Terraform. If this is set, the distribution needs to be deleted manually afterwards."
+  type        = bool
+  default     = false
+}
+
+variable "cloudfront_elb_wait_for_deployment" {
+  description = "If enabled, the resource will wait for the distribution status to change from InProgress to Deployed. Setting this tofalse will skip the process."
+  type        = bool
+  default     = false
+}
+
+
+variable "cloudfront_elb_create_origin_access_identity" {
+  description = "Controls if CloudFront origin access identity should be created"
+  type        = bool
+  default     = false
+}
+
+
+variable "cloudfront_elb_prefix_logging_config" {
+  description = "The prefix of logging config for cloudfront with elb"
+  type        = string
+  default     = "logging_cloudfront_elb"
+}
+
+
+variable "cloudfront_elb_custom_origin_config" {
+  description = "The CloudFront custom origin configuration information"
+  type        = any
+  default     = 
+  {
+    http_port              = 80
+    https_port             = 443
+    origin_protocol_policy = "match-viewer"
+    origin_ssl_protocols   = ["SSLv3"]
+  }
+}
+
+
+variable "cloudfront_elb_default_cache_behavior_viewer_protocol_policy" {
+  description = "Use this element to specify the protocol that users can use to access the files in the origin specified by TargetOriginId when a request matches the path pattern in PathPattern. One of allow-all, https-only, or redirect-to-https."
+  type        = string
+  default     = "allow-all"
+}
+
+// default cache behavior, cloudfront with elb
+
+variable "cloudfront_elb_default_cache_behavior_allowed_methods" {
+  description = "Use this element to specify the protocol that users can use to access the files in the origin specified by TargetOriginId when a request matches the path pattern in PathPattern. One of allow-all, https-only, or redirect-to-https."
+  type        = list(string)
+  default     = ["GET", "HEAD", "OPTIONS"]
+}
+
+variable "cloudfront_elb_default_cache_behavior_cached_methods" {
+  description = "Controls whether CloudFront caches the response to requests using the specified HTTP methods."
+  type        = list(string)
+  default     = ["GET", "HEAD"]
+}
+
+
+variable "cloudfront_elb_default_cache_behavior_compress" {
+  description = "Controls whether CloudFront caches the response to requests using the specified HTTP methods."
+  type        = bool
+  default     = true
+}
+
+
+variable "cloudfront_elb_default_cache_behavior_query_string" {
+  description = "Indicates whether you want CloudFront to forward query strings to the origin that is associated with this cache behavior."
+  type        = bool
+  default     = true
+}
+
+
+// order cache behavior, cloudfront with elb
+
+variable "cloudfront_elb_order_cache_behavior_viewer_protocol_policy" {
+  description = "Use this element to specify the protocol that users can use to access the files in the origin specified by TargetOriginId when a request matches the path pattern in PathPattern. One of allow-all, https-only, or redirect-to-https."
+  type        = string
+  default     = "redirect-to-https"
+}
+
+variable "cloudfront_elb_order_cache_behavior_allowed_methods" {
+  description = "Use this element to specify the protocol that users can use to access the files in the origin specified by TargetOriginId when a request matches the path pattern in PathPattern. One of allow-all, https-only, or redirect-to-https."
+  type        = list(string)
+  default     = ["GET", "HEAD", "OPTIONS", "PUT","POST", "PATCH", "DELETE"]
+}
+
+variable "cloudfront_elb_order_cache_behavior_cached_methods" {
+  description = "Controls whether CloudFront caches the response to requests using the specified HTTP methods."
+  type        = list(string)
+  default     = ["GET", "HEAD"]
+}
+
+
+variable "cloudfront_elb_order_cache_behavior_compress" {
+  description = "Controls whether CloudFront caches the response to requests using the specified HTTP methods."
+  type        = bool
+  default     = true
+}
+
+
+variable "cloudfront_elb_order_cache_behavior_query_string" {
+  description = "Indicates whether you want CloudFront to forward query strings to the origin that is associated with this cache behavior."
+  type        = bool
+  default     = true
+}
+
+// ssl support method, cloudfront with elastic load balancer
+
+variable "cloudfront_elb_ssl_support_method" {
+  description = "Specifies how you want CloudFront to serve HTTPS requests. One of vip or sni-only"
+  type        = string
+  default     = "sni-only"
+}
+
+
+
+##################################################################
+########### CLOUDFRONT FOR S3                       ###########  
+##################################################################
+
+
+
+variable "cloudfront_s3_comment" {
+  description = "Any comments you want to include about the distribution."
+  type        = string
+  default     = "My awesome CloudFront with s3 made by TF"
+}
+
+variable "cloudfront_s3_enabled" {
+  description = "Whether the distribution is enabled to accept end user requests for content."
+  type        = bool
+  default     = true
+}
+
+
+variable "cloudfront_s3_is_ipv6_enabled" {
+  description = "Whether the IPv6 is enabled for the distribution."
+  type        = bool
+  default     = true
+}
+
+variable "cloudfront_s3_price_class" {
+  description = "The price class for this distribution. One of PriceClass_All, PriceClass_200, PriceClass_100"
+  type        = string
+  default     = "PriceClass_All"
+}
+
+
+variable "cloudfront_s3_retain_on_delete" {
+  description = "Disables the distribution instead of deleting it when destroying the resource through Terraform. If this is set, the distribution needs to be deleted manually afterwards."
+  type        = bool
+  default     = false
+}
+
+variable "cloudfront_s3_wait_for_deployment" {
+  description = "If enabled, the resource will wait for the distribution status to change from InProgress to Deployed. Setting this tofalse will skip the process."
+  type        = bool
+  default     = false
+}
+
+
+variable "cloudfront_s3_create_origin_access_identity" {
+  description = "Controls if CloudFront origin access identity should be created"
+  type        = bool
+  default     = true
+}
+
+
+variable "cloudfront_s3_prefix_logging_config" {
+  description = "The prefix of logging config for cloudfront with elb"
+  type        = string
+  default     = "logging_cloudfront_elb"
+}
+
+
+// default cache behavior, cloudfront with s3
+
+variable "cloudfront_s3_default_cache_behavior_allowed_methods" {
+  description = "Use this element to specify the protocol that users can use to access the files in the origin specified by TargetOriginId when a request matches the path pattern in PathPattern. One of allow-all, https-only, or redirect-to-https."
+  type        = list(string)
+  default     = ["GET", "HEAD", "OPTIONS"]
+}
+
+variable "cloudfront_s3_default_cache_behavior_cached_methods" {
+  description = "Controls whether CloudFront caches the response to requests using the specified HTTP methods."
+  type        = list(string)
+  default     = ["GET", "HEAD"]
+}
+
+
+variable "cloudfront_s3_default_cache_behavior_compress" {
+  description = "Controls whether CloudFront caches the response to requests using the specified HTTP methods."
+  type        = bool
+  default     = true
+}
+
+
+variable "cloudfront_s3_default_cache_behavior_query_string" {
+  description = "Indicates whether you want CloudFront to forward query strings to the origin that is associated with this cache behavior."
+  type        = bool
+  default     = true
+}
