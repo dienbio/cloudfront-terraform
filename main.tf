@@ -187,10 +187,11 @@ module "asg" {
   image_id            = data.aws_ami.amazon_linux.id
   instance_type       = var.instance_type
   key_name            = module.key-pair.this_key_pair_key_name
+  associate_public_ip_address = var.asg_associate_public_ip_address
   user_data           = local.user_data
   security_groups     = [module.security_group_for_ec2.this_security_group_id]
   # Auto scaling group
-  vpc_zone_identifier = module.vpc.public_subnets
+  vpc_zone_identifier = module.vpc.private_subnets
   health_check_type   = var.asg_health_check_type
   min_size            = var.asg_min_size
   max_size            = var.asg_max_size
