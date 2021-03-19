@@ -114,7 +114,7 @@ module "security_group_for_ec2" {
   egress_rules        = var.sg_egress_rules
 }
 
-# create certificate for my domain
+//create certificate for my domain
 # module "acm" {
 #   source  = "./modules/acm"
 
@@ -123,17 +123,17 @@ module "security_group_for_ec2" {
 #   tags = var.tags_acm
 # }
 
-# module "security_group_for_rds" {
-#   source  = "./modules/sg"
+module "security_group_for_rds" {
+  source  = "./modules/sg"
 
-#   name                = "sgSPXDBSG1"
-#   description         = "Security group for example usage with rds instance"
-#   vpc_id              = module.vpc.vpc_id
+  name                = "sgSPXDBSG1"
+  description         = "Security group for example usage with rds instance"
+  vpc_id              = module.vpc.vpc_id
 
-#   ingress_cidr_blocks = [module.vpc.vpc_cidr_block]
-#   ingress_rules       = ["mssql-tcp"]
-#   egress_rules        = ["all-all"]
-# }
+  ingress_cidr_blocks = [module.vpc.vpc_cidr_block]
+  ingress_rules       = ["mssql-tcp"]
+  egress_rules        = ["all-all"]
+}
 
 # # create key pair "mykey" upload file public to aws
 module "key-pair" {
@@ -143,40 +143,40 @@ module "key-pair" {
   public_key = file(var.PATH_TO_PUBLIC_KEY)
 }
 
-# module "rds" {
-#   source                          = "./modules/rds/"
+module "rds" {
+  source                          = "./modules/rds/"
 
-#   identifier                      = var.identifier
-#   engine                          = var.rds_engine
-#   engine_version                  = var.rds_engine_version
-#   instance_class                  = var.rds_instance_class
-#   allocated_storage               = var.rds_allocated_storage
-#   storage_encrypted               = var.rds_storage_encrypted
-#   # name                            = var.rds_name
-#   username                        = var.rds_username
-#   password                        = var.rds_password
-#   port                            = var.rds_port
-#   vpc_security_group_ids          = [module.security_group_for_rds.this_security_group_id]
+  identifier                      = var.identifier
+  engine                          = var.rds_engine
+  engine_version                  = var.rds_engine_version
+  instance_class                  = var.rds_instance_class
+  allocated_storage               = var.rds_allocated_storage
+  storage_encrypted               = var.rds_storage_encrypted
+  # name                            = var.rds_name
+  username                        = var.rds_username
+  password                        = var.rds_password
+  port                            = var.rds_port
+  vpc_security_group_ids          = [module.security_group_for_rds.this_security_group_id]
 
-#   maintenance_window              = var.rds_maintenance_window
-#   backup_window                   = var.rds_backup_window
+  maintenance_window              = var.rds_maintenance_window
+  backup_window                   = var.rds_backup_window
 
-#   multi_az                        = var.rds_multi_az
-#   backup_retention_period         = var.rds_backup_retention_period # disable backups to create DB faster 
+  multi_az                        = var.rds_multi_az
+  backup_retention_period         = var.rds_backup_retention_period # disable backups to create DB faster 
 
-#   tags = {
-#     Account                       = var.tags_account
-#     Product                       = var.tags_product
-#     Environment                   = var.tags_environment
-#   }
+  tags = {
+    Account                       = var.tags_account
+    Product                       = var.tags_product
+    Environment                   = var.tags_environment
+  }
 
-#   subnet_ids                      = module.vpc.database_subnets # DB subnet group
-#   license_model                   = "license-included"
-#   family                          = var.rds_family # DB parameter group
-#   major_engine_version            = var.rds_major_engine_version # DB option group
-#   final_snapshot_identifier       = var.rds_final_snapshot_identifier # Snapshot name upon DB deletion
-#   deletion_protection             = var.rds_deletion_protection  # Database Deletion Protection
-# }
+  subnet_ids                      = module.vpc.database_subnets # DB subnet group
+  license_model                   = "license-included"
+  family                          = var.rds_family # DB parameter group
+  major_engine_version            = var.rds_major_engine_version # DB option group
+  final_snapshot_identifier       = var.rds_final_snapshot_identifier # Snapshot name upon DB deletion
+  deletion_protection             = var.rds_deletion_protection  # Database Deletion Protection
+}
 
 # create asg with min 4 max 4
 module "asg" {
@@ -216,6 +216,27 @@ module "alb" {
     Environment         = var.tags_environment
   }
 }
+
+## // to create bucket cdn
+## uncomment for testing
+# module "log_bucket_testing" {
+#   source             = "./modules/s3"
+
+#   bucket             = var.bucket_name
+#   force_destroy      = true
+# }
+
+
+//update policy
+
+module "bucket_testing" {
+  source             = "./modules/s3"
+
+  bucket             = var.bucket_name
+  acl                = "private"
+  policy             = data.aws_iam_policy_document.s3_policy_cf_bucket.json
+}
+
 
 module "logging_cloudfront_elb" {
   source        = "./modules/s3"
@@ -284,19 +305,6 @@ module "logging_cloudfront_s3" {
 }
 
 
-module "bucket_testing" {
-  source             = "./modules/s3"
-
-  bucket             = var.bucket_name
-  acl                = "private"
-  policy             = data.aws_iam_policy_document.s3_policy_cf_bucket.json
-}
-
-# resource "aws_s3_bucket" "bucket" {
-#   bucket = var.bucket_name
-#   acl    = "private"
-#   policy = data.aws_iam_policy_document.s3_policy_cf_bucket.json
-# }
 
 module "cloudfront_s3" {
   source = "./modules/cf/"
