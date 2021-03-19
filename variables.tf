@@ -1,14 +1,20 @@
 
 variable "bucket_name" {
+  description = "The name of the bucket. If omitted, Terraform will assign a random, unique name. Must be less than or equal to 63 characters in length"
+  type        = string
   default = "spxdemo.antientf.tk"
 }
 
 
 variable "PATH_TO_PRIVATE_KEY" {
+  description = "path of private key"
+  type        = string
   default = "~/.ssh/id_rsa"
 }
 
 variable "PATH_TO_PUBLIC_KEY" {
+  description = "path of public key"
+  type        = string
   default = "~/.ssh/id_rsa.pub"
 }
 
