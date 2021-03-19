@@ -60,7 +60,7 @@ data "aws_iam_policy_document" "s3_policy_cf_bucket" {
 
     principals {
       type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn]
+      identifiers = [module.cloudfront_s3.this_cloudfront_origin_access_identities.s3_bucket_one.iam_arn]
     }
   }
 
@@ -70,7 +70,7 @@ data "aws_iam_policy_document" "s3_policy_cf_bucket" {
 
     principals {
       type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn]
+      identifiers = [module.cloudfront_s3.this_cloudfront_origin_access_identities.s3_bucket_one.iam_arn]
     }
   }
 }
@@ -325,8 +325,8 @@ module "cloudfront_s3" {
       domain_name = data.aws_s3_bucket.bucket_test_cloudfront.bucket_domain_name
       origin_id   = trimsuffix(data.aws_s3_bucket.bucket_test_cloudfront.bucket_domain_name, ".s3.amazonaws.com")
       s3_origin_config = {
-        origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
-        cloudfront_access_identity_path = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
+        origin_access_identity =  module.cloudfront_s3.this_cloudfront_origin_access_identities.s3_bucket_one.cloudfront_access_identity_path
+        cloudfront_access_identity_path = module.cloudfront_s3.this_cloudfront_origin_access_identities.s3_bucket_one.cloudfront_access_identity_path
       }
     }
   }
@@ -345,8 +345,3 @@ module "cloudfront_s3" {
     ssl_support_method     = var.cloudfront_s3_ssl_support_method
   }
 }
-
-# resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
-#   comment = "access-identity-${var.bucket_name}"
-# }
-
