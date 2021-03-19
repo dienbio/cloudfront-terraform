@@ -201,6 +201,8 @@ module "asg" {
   tags = var.tags_asg
 }
 
+// create application load balancer
+
 module "alb" {
   source = "./modules/alb/"
 
@@ -239,12 +241,15 @@ module "bucket_testing" {
 }
 
 
+// create s3 bucket for logging cloudfront with elastic load balancer
 module "logging_cloudfront_elb" {
   source        = "./modules/s3"
 
   bucket        = var.logging_cloudfront_elb_bucket
   force_destroy = var.logging_cloudfront_elb_force_destroy
 }
+
+// create cloudfront with elastic load balancer
 
 module "cloudfront_elb" {
   source                        = "./modules/cf/"
@@ -298,6 +303,8 @@ module "cloudfront_elb" {
   }
 }
 
+// create s3 bucket for logging cloudfront with s3 cdn
+
 module "logging_cloudfront_s3" {
   source             = "./modules/s3"
 
@@ -306,6 +313,8 @@ module "logging_cloudfront_s3" {
 }
 
 
+
+// create cloudfront with s3 cdn
 
 module "cloudfront_s3" {
   source = "./modules/cf/"
