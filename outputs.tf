@@ -14,10 +14,10 @@
 #   value       = module.acm.this_acm_certificate_domain_validation_options
 # }
 
-output "this_acm_certificate_arn" {
-  description = "The ARN of the certificate"
-  value       = data.aws_acm_certificate.demo_cert.arn
-}
+# output "this_acm_certificate_arn" {
+#   description = "The ARN of the certificate"
+#   value       = data.aws_acm_certificate.demo_cert.arn
+# }
 
 
 # # output "this_lb_id" {
