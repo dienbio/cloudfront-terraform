@@ -75,7 +75,6 @@ data "aws_iam_policy_document" "s3_policy_cf_bucket" {
   }
 }
 
-
 data "aws_s3_bucket" "bucket_test_cloudfront" {
   bucket = var.bucket_name
 }
@@ -198,7 +197,6 @@ module "asg" {
   desired_capacity    = var.asg_desired_capacity
   force_delete        = var.asg_force_delete
   target_group_arns   = module.alb.target_group_arns
-
   tags = var.tags_asg
 }
 
@@ -209,7 +207,6 @@ module "alb" {
   vpc_id                = module.vpc.vpc_id
   security_groups       = [module.security_group_for_ec2.this_security_group_id]
   subnets               = slice(module.vpc.public_subnets,0,3)
-
   http_tcp_listeners    = var.alb_http_tcp_listeners
   target_groups         = var.alb_target_groups
   tags = {
@@ -228,16 +225,15 @@ module "logging_cloudfront_elb" {
 }
 
 module "cloudfront_elb" {
-  source                         = "./modules/cf/"
+  source                        = "./modules/cf/"
 
-  aliases                       = ["appsync.antientf.tk"]
+  aliases                       = var.logging_cloudfront_elb_aliases
   comment                       = var.cloudfront_elb_comment
   enabled                       = var.cloudfront_elb_enabled
   is_ipv6_enabled               = var.cloudfront_elb_is_ipv6_enabled
   price_class                   = var.cloudfront_elb_price_class
   retain_on_delete              = var.cloudfront_elb_retain_on_delete
   wait_for_deployment           = var.cloudfront_elb_wait_for_deployment
-
   create_origin_access_identity = var.cloudfront_elb_create_origin_access_identity
 
   logging_config = {
@@ -247,8 +243,8 @@ module "cloudfront_elb" {
 
   origin = {
     appsync = {
-      domain_name              =  module.alb.this_lb_dns_name
       origin_id                = trimsuffix(module.alb.this_lb_dns_name, ".us-east-1.elb.amazonaws.com")
+      domain_name              = module.alb.this_lb_dns_name
       custom_origin_config     = var.cloudfront_elb_custom_origin_config
     }
   }
@@ -264,8 +260,8 @@ module "cloudfront_elb" {
 
   ordered_cache_behavior = [
     {
-      path_pattern            = "/content/*"
       target_origin_id        = trimsuffix(module.alb.this_lb_dns_name, ".us-east-1.elb.amazonaws.com")
+      path_pattern            = var.cloudfront_elb_order_cache_behavior_path_pattern
       viewer_protocol_policy  = var.cloudfront_elb_default_cache_behavior_viewer_protocol_policy
       allowed_methods         = var.cloudfront_elb_default_cache_behavior_allowed_methods
       cached_methods          = var.cloudfront_elb_default_cache_behavior_cached_methods
@@ -281,17 +277,31 @@ module "cloudfront_elb" {
 }
 
 module "logging_cloudfront_s3" {
-  source                      = "./modules/s3"
+  source             = "./modules/s3"
 
-  bucket                      = "spx.demo.logging"
-  force_destroy               = var.logging_cloudfront_s3_force_destroy
+  bucket             = var.logging_cloudfront_s3_bucket
+  force_destroy      = var.logging_cloudfront_s3_force_destroy
 }
 
+
+module "bucket_testing" {
+  source             = "./modules/s3"
+
+  bucket             = var.bucket_name
+  acl                = "private"
+  policy             = data.aws_iam_policy_document.s3_policy_cf_bucket.json
+}
+
+# resource "aws_s3_bucket" "bucket" {
+#   bucket = var.bucket_name
+#   acl    = "private"
+#   policy = data.aws_iam_policy_document.s3_policy_cf_bucket.json
+# }
 
 module "cloudfront_s3" {
   source = "./modules/cf/"
 
-  aliases = ["cdn.antientf.tk"]
+  aliases                       = var.logging_cloudfront_s3_aliases
   comment                       = var.cloudfront_s3_comment
   enabled                       = var.cloudfront_s3_enabled
   is_ipv6_enabled               = var.cloudfront_s3_is_ipv6_enabled
@@ -336,12 +346,7 @@ module "cloudfront_s3" {
   }
 }
 
-resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
-  comment = "access-identity-${var.bucket_name}"
-}
+# resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
+#   comment = "access-identity-${var.bucket_name}"
+# }
 
-resource "aws_s3_bucket" "bucket" {
-  bucket = var.bucket_name
-  acl    = "private"
-  policy = data.aws_iam_policy_document.s3_policy_cf_bucket.json
-}

@@ -541,6 +541,13 @@ variable "vpc_single_nat_gateway" {
 
 
 ## s3 for logging cloudfront elastic load balancer
+
+variable "logging_cloudfront_elb_aliases" {
+  description = "Extra CNAMEs (alternate domain names), if any, for this distribution."
+  type        = list(string)
+  default     = ["appsync.antientf.tk"]
+}
+
 variable "logging_cloudfront_elb_bucket" {
   description = "(Optional, Forces new resource) The name of the bucket. If omitted, Terraform will assign a random, unique name."
   type        = string
@@ -554,6 +561,13 @@ variable "logging_cloudfront_elb_force_destroy" {
 }
 
 ## s3 for logging cloudfront s3
+
+
+variable "logging_cloudfront_s3_aliases" {
+  description = "Extra CNAMEs (alternate domain names), if any, for this distribution."
+  type        = list(string)
+  default     = ["cdn.antientf.tk"]
+}
 
 variable "logging_cloudfront_s3_bucket" {
   description = "(Optional, Forces new resource) The name of the bucket. If omitted, Terraform will assign a random, unique name."
@@ -674,7 +688,11 @@ variable "cloudfront_elb_default_cache_behavior_query_string" {
 
 
 // order cache behavior, cloudfront with elb
-
+variable "cloudfront_elb_order_cache_behavior_path_pattern" {
+  description = "Use this element to specify the protocol that users can use to access the files in the origin specified by TargetOriginId when a request matches the path pattern in PathPattern. One of allow-all, https-only, or redirect-to-https."
+  type        = string
+  default     = "/content/*"
+}
 variable "cloudfront_elb_order_cache_behavior_viewer_protocol_policy" {
   description = "Use this element to specify the protocol that users can use to access the files in the origin specified by TargetOriginId when a request matches the path pattern in PathPattern. One of allow-all, https-only, or redirect-to-https."
   type        = string
