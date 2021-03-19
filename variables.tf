@@ -1,6 +1,6 @@
 
 variable "bucket_name" {
-  default = "spx.antientf.tk"
+  default = "spxdemo.antientf.tk"
 }
 
 
@@ -558,7 +558,7 @@ variable "logging_cloudfront_elb_force_destroy" {
 variable "logging_cloudfront_s3_bucket" {
   description = "(Optional, Forces new resource) The name of the bucket. If omitted, Terraform will assign a random, unique name."
   type        = string
-  default     = "logging_cloudfront_s3_terraform"
+  default     = "spx.demo.logging"
 }
 
 
@@ -629,8 +629,7 @@ variable "cloudfront_elb_prefix_logging_config" {
 variable "cloudfront_elb_custom_origin_config" {
   description = "The CloudFront custom origin configuration information"
   type        = any
-  default     = 
-  {
+  default     = {
     http_port              = 80
     https_port             = 443
     origin_protocol_policy = "match-viewer"
@@ -779,6 +778,13 @@ variable "cloudfront_s3_prefix_logging_config" {
 
 // default cache behavior, cloudfront with s3
 
+variable "cloudfront_s3_default_cache_behavior_viewer_protocol_policy" {
+  description = "Use this element to specify the protocol that users can use to access the files in the origin specified by TargetOriginId when a request matches the path pattern in PathPattern. One of allow-all, https-only, or redirect-to-https."
+  type        = string
+  default     = "redirect-to-https"
+}
+
+
 variable "cloudfront_s3_default_cache_behavior_allowed_methods" {
   description = "Use this element to specify the protocol that users can use to access the files in the origin specified by TargetOriginId when a request matches the path pattern in PathPattern. One of allow-all, https-only, or redirect-to-https."
   type        = list(string)
@@ -803,4 +809,13 @@ variable "cloudfront_s3_default_cache_behavior_query_string" {
   description = "Indicates whether you want CloudFront to forward query strings to the origin that is associated with this cache behavior."
   type        = bool
   default     = true
+}
+
+
+// ssl support method, cloudfront with elastic load balancer
+
+variable "cloudfront_s3_ssl_support_method" {
+  description = "Specifies how you want CloudFront to serve HTTPS requests. One of vip or sni-only"
+  type        = string
+  default     = "sni-only"
 }

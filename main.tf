@@ -77,7 +77,7 @@ data "aws_iam_policy_document" "s3_policy_cf_bucket" {
 
 
 data "aws_s3_bucket" "bucket_test_cloudfront" {
-  bucket = "spx.antientf.tk"
+  bucket = var.bucket_name
 }
 
 # ## Take cert issued from amazon
@@ -283,7 +283,7 @@ module "cloudfront_elb" {
 module "logging_cloudfront_s3" {
   source                      = "./modules/s3"
 
-  bucket                      = var.logging_cloudfront_s3_bucket
+  bucket                      = "spx.demo.logging"
   force_destroy               = var.logging_cloudfront_s3_force_destroy
 }
 
@@ -291,9 +291,7 @@ module "logging_cloudfront_s3" {
 module "cloudfront_s3" {
   source = "./modules/cf/"
 
-  # aliases = ["${local.subdomain}.${local.domain_name}"]
   aliases = ["cdn.antientf.tk"]
-
   comment                       = var.cloudfront_s3_comment
   enabled                       = var.cloudfront_s3_enabled
   is_ipv6_enabled               = var.cloudfront_s3_is_ipv6_enabled
@@ -302,7 +300,7 @@ module "cloudfront_s3" {
   wait_for_deployment           = var.cloudfront_s3_wait_for_deployment
 
 
-  create_origin_access_identity = var.cloudfront_elb_create_origin_access_identity
+  create_origin_access_identity = var.cloudfront_s3_create_origin_access_identity
   origin_access_identities = {
     s3_bucket_one = "My awesome CloudFront can access"
   }
@@ -343,7 +341,7 @@ resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
 }
 
 resource "aws_s3_bucket" "bucket" {
-  bucket = "${var.bucket_name}"
+  bucket = var.bucket_name
   acl    = "private"
   policy = data.aws_iam_policy_document.s3_policy_cf_bucket.json
 }
